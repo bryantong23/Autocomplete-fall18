@@ -1,24 +1,24 @@
 import java.util.*;
 
 public class BinarySearchLibrary {
-	
+
 	public static <T>
-	    int firstIndexSlow(List<T> list, 
-	    		           T target, Comparator<T> comp) {
+	int firstIndexSlow(List<T> list,
+					   T target, Comparator<T> comp) {
 		int index = Collections.binarySearch(list, target,comp);
-		
+
 		if (index < 0) return index;
-		
+
 		while (0 <= index && comp.compare(list.get(index),target) == 0) {
 			index -= 1;
 		}
 		return index+1;
 	}
-	
+
 	/**
 	 * Uses binary search to find the index of the first object in parameter
 	 * list -- the first object o such that comp.compare(o,target) == 0.
-	 * 
+	 *
 	 * This method should not call comparator.compare() more than 1+log n times
 	 * @param list is the list of objects being searched
 	 * @param target is the object being searched for
@@ -27,23 +27,42 @@ public class BinarySearchLibrary {
 	 * and there is no index < i such that this is true. Return -1
 	 * if there is no such object in list.
 	 */
-	
+
 	public static <T>
-    	int firstIndex(List<T> list, 
-	               	T target, Comparator<T> comp) {
-		
+	int firstIndex(List<T> list,
+				   T target, Comparator<T> comp) {
+
 		int low = -1;
 		int high = list.size()-1;
+		//if list is empty, return -1
+		if (high + 1 == 0){
+			return -1;
+		}
 		// (low,high] contains target
 		// TODO: complete method
-		
-		return -1;
+		//loop to gradually decrease size of interval that contains target while maintaining loop invariant
+		while (low + 1 != high){
+			int mid = (low + high) / 2;
+			if (comp.compare(list.get(mid), target) < 0){
+				low = mid;
+			}
+			else {
+				high = mid;
+			}
+		}
+		//if high is not equal to target, target is not found
+		if (comp.compare(list.get(high), target) != 0){
+			return -1;
+		}
+		else {
+			return high;
+		}
 	}
 
 	/**
 	 * Uses binary search to find the index of the last object in parameter
 	 * list -- the first object o such that comp.compare(o,target) == 0.
-	 * 
+	 *
 	 * This method should not call comparator.compare() more than 1+log n times
 	 * @param list is the list of objects being searched
 	 * @param target is the object being searched for
@@ -53,15 +72,34 @@ public class BinarySearchLibrary {
 	 * if there is no such object in list.
 	 */
 	public static <T>
-	int lastIndex(List<T> list, 
-               	  T target, Comparator<T> comp) {
-		
+	int lastIndex(List<T> list,
+				  T target, Comparator<T> comp) {
+
 		int low = 0;
 		int high = list.size();
-		
+		//if list is empty, return -1
+		if (high == 0){
+			return -1;
+		}
 		// target in [low,high)
 		// TODO: complete method
-		return -1;
+		//loop to gradually decrease size of interval that contains target while maintaining loop invariant
+		while (low + 1 != high){
+			int mid = (low + high) / 2;
+			if (comp.compare(list.get(mid), target) > 0){
+				high = mid;
+			}
+			else {
+				low = mid;
+			}
+		}
+		//if low is not equal to target, target is not found
+		if (comp.compare(list.get(low), target) != 0){
+			return -1;
+		}
+		else {
+			return low;
+		}
 	}
-	
+
 }

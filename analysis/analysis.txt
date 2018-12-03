@@ -1,30 +1,121 @@
 Put your name and netid here
+Bryan Tong; bt100
 
-(1) Run the program BenchmarkForAutocomplete and copy/paste the 
+(1) Run the program BenchmarkForAutocomplete and copy/paste the
 results here this for #matches = 20
 
-(2) Run the program again for #matches = 10000, paste the results, 
-and then make any conclusions about how the # matches 
-effects the runtime. 
+search	size	#match	binary	brute
+	456976	20	0.2942	0.0158
+a	17576	20	0.0038	0.0230
+b	17576	20	0.0037	0.0075
+c	17576	20	0.0037	0.0065
+x	17576	20	0.0075	0.0079
+y	17576	20	0.0060	0.0067
+z	17576	20	0.0040	0.0066
+aa	676	20	0.0001	0.0070
+az	676	20	0.0001	0.0085
+za	676	20	0.0001	0.0076
+zz	676	20	0.0001	0.0064
 
-(3) Copy/paste the code from BruteAutocomplete.topMatches below. 
-Explain what the Big-Oh complexity of the entire loop: 
-for(Term t : myTerms) {...} 
-is in terms of N, the number of elements in myTerms and 
-M, the number of terms that match the prefix. 
-Assume that every priority-queue operation runs in O(log k) time. 
+(2) Run the program again for #matches = 10000, paste the results,
+and then make any conclusions about how the # matches
+effects the runtime.
+
+search	size	#match	binary	brute
+	456976	10000	0.2536	0.0314
+a	17576	10000	0.0041	0.0118
+b	17576	10000	0.0041	0.0080
+c	17576	10000	0.0038	0.0082
+x	17576	10000	0.0038	0.0073
+y	17576	10000	0.0037	0.0091
+z	17576	10000	0.0037	0.0096
+aa	676	10000	0.0001	0.0040
+az	676	10000	0.0001	0.0044
+za	676	10000	0.0001	0.0045
+zz	676	10000	0.0001	0.0045
+
+From the data above, changing the match number from 20 to 10000 did not affect the runtime very significantly (although
+it did decrease runtime for brute by a little). When the match number was 20, the runtime was around 0.0060-0.0080,
+and when the match number was 10000, the runtime was around 0.0040-0.0100, which is a very small difference and could
+be attributed to outside noise and some minor processes in the computer.
+
+(3) Copy/paste the code from BruteAutocomplete.topMatches below.
+Explain what the Big-Oh complexity of the entire loop:
+for(Term t : myTerms) {...}
+is in terms of N, the number of elements in myTerms and
+M, the number of terms that match the prefix.
+Assume that every priority-queue operation runs in O(log k) time.
 Explain your answer which should be in terms of N, M, and k.
 
-(4) Explain why the last for loop in BruteAutocomplete.topMatches 
-uses a LinkedList (and not an ArrayList) 
-AND why the PriorityQueue uses Term.WeightOrder to get 
-the top k heaviest matches -- rather than 
+        if (k < 0) {
+			throw new IllegalArgumentException("Illegal value of k:"+k);
+		}
+
+		// maintain pq of size k
+		PriorityQueue<Term> pq = new PriorityQueue<Term>(10, new Term.WeightOrder());
+		for (Term t : myTerms) {
+			if (!t.getWord().startsWith(prefix))
+				continue;
+			if (pq.size() < k) {
+				pq.add(t);
+			} else if (pq.peek().getWeight() < t.getWeight()) {
+				pq.remove();
+				pq.add(t);
+			}
+		}
+		int numResults = Math.min(k, pq.size());
+		LinkedList<Term> ret = new LinkedList<>();
+		for (int i = 0; i < numResults; i++) {
+			ret.addFirst(pq.remove());
+		}
+		return ret;
+
+The Big-Oh complexity of the entire loop is O(Nlogk). This is because the loop loops through every term in myTerms,
+which contains N elements, and for each term performs one or a series of logk functions (since every operation for a
+priority-queue runs in O(logk) time. Thus, performing a series of logk operations N times yields an O(Nlogk) runtime.
+
+
+(4) Explain why the last for loop in BruteAutocomplete.topMatches
+uses a LinkedList (and not an ArrayList)
+AND why the PriorityQueue uses Term.WeightOrder to get
+the top k heaviest matches -- rather than
 using Term.ReverseWeightOrder.
 
+The last for loop in BruteAutocomplete.topMatches uses a LinkedList because adding an element to the beginning of a
+LinkedList is of constant runtime, whereas adding an element to the beginning of an ArrayList is of O(n) runtime, where
+n is the size of the ArrayList. Thus, a LinkedList is used to optimize for time efficiency. The PriorityQueue uses
+Term.WeightOrder to get the top k heaviest matches rather than Term.ReverseWeightOrder because WeightOder sorts by
+increasing weight, and so removing the first element of pq would get rid of the term with the smallest weight in pq
+and replace it with a term with a larger weight.
 
-(5) Explain what the runtime of the 
-BinarySearchAutocomplete.topMatches code that you 
-implemented is by copy/pasting the code below 
+(5) Explain what the runtime of the
+BinarySearchAutocomplete.topMatches code that you
+implemented is by copy/pasting the code below
 and explaining your answer in terms of N, M, and k.
 
+        //check if prefix is null
+		if(prefix == null)
+			throw new NullPointerException("Null prefix");
+		//store first index of prefix that matches
+		int firstIndex = firstIndexOf(myTerms, new Term(prefix, 0), new Term.PrefixOrder(prefix.length()));
+		//if first index is negative, no prefixes match, so return empty list
+		if(firstIndex == -1)
+			return new ArrayList <> ();
+		//store last index of prefix that matches
+		int last = lastIndexOf(myTerms, new Term(prefix, 0), new Term.PrefixOrder(prefix.length()));
+		//make new array with all matching prefixes
+		Term [] matches = Arrays.copyOfRange(myTerms, firstIndex, last + 1);
+		//sort array in reversed weight order
+		Arrays.sort(matches, new Term.ReverseWeightOrder());
+		//return minimum of either size of array or number of words to return
+		int results = Math.min(k, last - firstIndex + 1);
+		ArrayList <Term> list = new ArrayList <> ();
+		//add results amount of words in matches to list
+		for(int i = 0; i < results; i++)
+			list.add(matches[i]);
+		return list;
 
+The runtime is O(MlogM + logN + k). firstIndexOf and lastIndexOf are both O(logN) time because they use
+a binary search which has a runtime of O(logN). Arrays.sort has a runtime of O(NlogN), where N is the number of elements
+to be sorted, which in this case is M as well. Finally, the last loop has a runtime of O(k) where k is the number of
+terms desired.

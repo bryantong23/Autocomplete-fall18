@@ -3,7 +3,7 @@
  * @author Kevin Wayne
  *
  * Description: A term and its weight.
- * 
+ *
  *************************************************************************/
 
 import java.util.Comparator;
@@ -16,7 +16,7 @@ public class Term implements Comparable<Term> {
 	/**
 	 * The constructor for the Term class. Should set the values of word and
 	 * weight to the inputs, and throw the exceptions listed below
-	 * 
+	 *
 	 * @param word
 	 *            The word this term consists of
 	 * @param weight
@@ -28,11 +28,19 @@ public class Term implements Comparable<Term> {
 	 */
 	public Term(String word, double weight) {
 		// TODO: Complete Term constructor
-		
+
 		myWord = word;
 		myWeight = weight;
+		//check if weight is negative
+		if (weight < 0){
+			throw new IllegalArgumentException("Negative weight "+weight);
+		}
+		//check if word is null
+		if (word == null){
+			throw new NullPointerException("Word is null");
+		}
 	}
-	
+
 	/**
 	 * The default sorting of Terms is lexicographical ordering.
 	 */
@@ -54,7 +62,7 @@ public class Term implements Comparable<Term> {
 	public String toString() {
 		return String.format("(%2.1f,%s)", myWeight, myWord);
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		Term other = (Term) o;
@@ -80,16 +88,23 @@ public class Term implements Comparable<Term> {
 		 * considered equal. This method should take O(r) to run, and be
 		 * independent of the length of v and w's length. You can access the
 		 * Strings to compare using v.word and w.word.
-		 * 
+		 *
 		 * @param v/w
 		 *            - Two Terms whose words are being compared
 		 */
 		public int compare(Term v, Term w) {
 			// TODO: Implement compare
-			
-			return 0;
+			String vword = v.myWord;
+			String wword = w.myWord;
+			int vlength = vword.length();
+			int wlength = wword.length();
+			/*if length of v and length of w are both at least myPrefixSize, return value of .compareTo of substrings
+			of vword and wword
+			*/
+			if(vlength >= myPrefixSize && wlength >= myPrefixSize)
+				return vword.substring(0,myPrefixSize).compareTo(wword.substring(0,myPrefixSize));
+			return vword.compareTo(wword);
 		}
-	
 	}
 
 	/**
@@ -101,7 +116,13 @@ public class Term implements Comparable<Term> {
 	public static class ReverseWeightOrder implements Comparator<Term> {
 		public int compare(Term v, Term w) {
 			// TODO: implement compare
-			
+			//compare weights of v and w, returning -1 if v is greater than w
+			if (v.getWeight() < w.getWeight()){
+				return 1;
+			}
+			if (v.getWeight() > w.getWeight()){
+				return -1;
+			}
 			return 0;
 		}
 	}
@@ -115,7 +136,13 @@ public class Term implements Comparable<Term> {
 	public static class WeightOrder implements Comparator<Term> {
 		public int compare(Term v, Term w) {
 			// TODO: implement compare
-			
+			//compare weights of v and w, returning -1 if v is less than w
+			if (v.getWeight() < w.getWeight()){
+				return -1;
+			}
+			if (v.getWeight() > w.getWeight()){
+				return 1;
+			}
 			return 0;
 		}
 	}
